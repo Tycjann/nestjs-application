@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './interfaces/user.interface';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { ExternalUserDTO } from './dto/external-user.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
 import { v4 as uuidv4 } from 'uuid';
-import dateToArray from 'src/utils/dateToArray';
 
 @Injectable()
 export class UsersDataService {
@@ -16,7 +15,7 @@ export class UsersDataService {
   getAllUsers(): User[] {
     return this.users;
   }
-  addUser(item: CreateUserDTO): ExternalUserDTO {
+  addUser(item: CreateUserDTO): User {
     const user: User = {
       ...item,
       id: uuidv4(),
@@ -24,19 +23,14 @@ export class UsersDataService {
       updatedAt: new Date(),
     };
     this.users.push(user);
-    return {
-      ...user,
-      dateBirth: dateToArray(user.dateBirth),
-      createdAt: dateToArray(user.createdAt),
-      updatedAt: dateToArray(user.updatedAt),
-    };
+    return user;
   }
 
   deleteUser(id: string): void {
     this.users = this.users.filter((user) => user.id !== id);
   }
 
-  updateUser(id: string, item: ExternalUserDTO): User {
+  updateUser(id: string, item: UpdateUserDTO): User {
     this.users = this.users.map((user) => {
       if (user.id === id) {
         return {

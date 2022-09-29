@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common';
@@ -20,7 +21,9 @@ export class ProductsController {
   constructor(private productRepository: ProductsDataService) {}
 
   @Get(':id')
-  getProductById(@Param('id') id: string): ExternalProductDTO {
+  getProductById(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): ExternalProductDTO {
     return this.mapProductToExternal(this.productRepository.getProductById(id));
   }
 
@@ -38,7 +41,7 @@ export class ProductsController {
 
   @Put(':id')
   updateProduct(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() item: UpdateProductDTO,
   ): ExternalProductDTO {
     return this.mapProductToExternal(
@@ -56,7 +59,9 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(204)
-  deleteProduct(@Param('id') id: string): void {
+  deleteProduct(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): void {
     return this.productRepository.deleteProduct(id);
   }
 }

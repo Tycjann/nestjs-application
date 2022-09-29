@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Product } from './interfaces/product.interface';
 import { CreateProductDTO } from './dto/create-product.dto';
-import { ExternalProductDTO } from './dto/external-product.dto';
+import { UpdateProductDTO } from './dto/update-product.dto';
 import { v4 as uuidv4 } from 'uuid';
-import dateToArray from 'src/utils/dateToArray';
 
 @Injectable()
 export class ProductsDataService {
@@ -17,7 +16,7 @@ export class ProductsDataService {
     return this.products;
   }
 
-  addProduct(item: CreateProductDTO): ExternalProductDTO {
+  addProduct(item: CreateProductDTO): Product {
     // item.id = uuidv4();
     // item.createdAt = new Date();
     // item.updatedAt = new Date();
@@ -30,18 +29,14 @@ export class ProductsDataService {
       updatedAt: new Date(),
     };
     this.products.push(product);
-    return {
-      ...product,
-      createdAt: dateToArray(product.createdAt),
-      updatedAt: dateToArray(product.updatedAt),
-    };
+    return product;
   }
 
   deleteProduct(id: string): void {
     this.products = this.products.filter((product) => product.id !== id);
   }
 
-  updateProduct(id: string, item: ExternalProductDTO): Product {
+  updateProduct(id: string, item: UpdateProductDTO): Product {
     this.products = this.products.map((product) => {
       if (product.id === id) {
         return {

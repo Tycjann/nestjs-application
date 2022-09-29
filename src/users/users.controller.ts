@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common';
@@ -20,7 +21,9 @@ export class UsersController {
   constructor(private userRepository: UsersDataService) {}
 
   @Get(':id')
-  getUserById(@Param('id') id: string): ExternalUserDTO {
+  getUserById(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): ExternalUserDTO {
     return this.mapUserToExternal(this.userRepository.getUserById(id));
   }
 
@@ -36,7 +39,7 @@ export class UsersController {
 
   @Put(':id')
   updateUser(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() item: UpdateUserDTO,
   ): ExternalUserDTO {
     return this.mapUserToExternal(this.userRepository.updateUser(id, item));
@@ -53,7 +56,9 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(204)
-  deleteUser(@Param('id') id: string): void {
+  deleteUser(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): void {
     return this.userRepository.deleteUser(id);
   }
 }

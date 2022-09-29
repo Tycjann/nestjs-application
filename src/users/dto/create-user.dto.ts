@@ -6,6 +6,6 @@ export interface CreateUserDTO {
   nameLast: string;
   email: string;
   dateBirth?: Date;
-  address: Array<UserAddress>;
+  address: UserAddress[];
   role: Roles;
 }
