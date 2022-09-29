@@ -5,6 +5,7 @@ const arrayToDate = (dateArray: number[]): Date => {
     dateArray[2],
     dateArray[3],
     dateArray[4],
+    dateArray[5],
   );
 };
 

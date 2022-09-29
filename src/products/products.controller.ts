@@ -8,12 +8,12 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { Product } from './interfaces/product.interface';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { ExternalProductDTO } from './dto/external-product.dto';
-import { Product } from './interfaces/product.interface';
+import { UpdateProductDTO } from './dto/update-product.dto';
 import { ProductsDataService } from './products-data.service';
 import dateToArray from 'src/utils/dateToArray';
-import { UpdateProductDTO } from './dto/update-product.dto';
 
 @Controller('products')
 export class ProductsController {
