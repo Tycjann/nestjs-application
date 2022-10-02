@@ -14,7 +14,7 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import { ExternalUserDTO } from './dto/external-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UsersDataService } from './users-data.service';
-import dateToArray from 'src/utils/dateToArray';
+import dateToArray from 'src/shared/utils/dateToArray';
 import { UserValidatorService } from './user-validator.service';
 
 @Controller('users')

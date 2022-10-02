@@ -14,7 +14,7 @@ import { CreateProductDTO } from './dto/create-product.dto';
 import { ExternalProductDTO } from './dto/external-product.dto';
 import { UpdateProductDTO } from './dto/update-product.dto';
 import { ProductsDataService } from './products-data.service';
-import dateToArray from 'src/utils/dateToArray';
+import dateToArray from 'src/shared/utils/dateToArray';
 
 @Controller('products')
 export class ProductsController {

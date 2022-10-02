@@ -2,7 +2,7 @@ import { Roles } from 'src/enums/Roles.enum';
 import { CreateUserAddressDTO } from './create-user-address';
 import { Transform, Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, ValidateNested, IsEnum } from 'class-validator';
-import arrayToDate from '../../utils/arrayToDate';
+import arrayToDate from '../../shared/utils/arrayToDate';
 
 export class UpdateUserDTO {
   @IsNotEmpty()
