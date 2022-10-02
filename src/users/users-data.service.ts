@@ -12,6 +12,10 @@ export class UsersDataService {
     return this.users.find((user) => user.id === id);
   }
 
+  getUserByEmail(email: string): User {
+    return this.users.find((user) => user.email === email);
+  }
+
   getAllUsers(): User[] {
     return this.users;
   }

@@ -6,8 +6,8 @@ export interface ExternalUserDTO {
   nameFirst: string;
   nameLast: string;
   email: string;
-  dateBirth?: number[];
-  address: UserAddress[];
+  dateBirth: number[];
+  address?: UserAddress[];
   role: Roles;
   createdAt: number[];
   updatedAt: number[];

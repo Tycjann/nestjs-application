@@ -15,10 +15,13 @@ import { ExternalUserDTO } from './dto/external-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UsersDataService } from './users-data.service';
 import dateToArray from 'src/utils/dateToArray';
+import { UserValidatorService } from './user-validator.service';
 
 @Controller('users')
 export class UsersController {
   constructor(private userRepository: UsersDataService) {}
+
+  userEmailValidator = new UserValidatorService(this.userRepository);
 
   @Get(':id')
   getUserById(
@@ -34,6 +37,8 @@ export class UsersController {
 
   @Post()
   addUser(@Body() item: CreateUserDTO): ExternalUserDTO {
+    this.userEmailValidator.validateUniqueEmail(item.email);
+
     return this.mapUserToExternal(this.userRepository.addUser(item));
   }
 
