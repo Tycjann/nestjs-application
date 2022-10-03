@@ -1,4 +1,4 @@
-import { Roles } from 'src/enums/Roles.enum';
+import { Roles } from 'src/shared/enums/Roles.enum';
 import { UserAddress } from '../interfaces/user-address.interface';
 
 export interface ExternalUserDTO {

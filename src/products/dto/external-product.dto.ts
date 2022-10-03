@@ -1,4 +1,4 @@
-import { Tags } from 'src/enums/Tags.enum';
+import { Tags } from 'src/shared/enums/Tags.enum';
 
 export interface ExternalProductDTO {
   id: string;
