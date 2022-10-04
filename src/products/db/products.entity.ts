@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Tag } from './tags.entity';
+import { Tags } from './tags.entity';
 import {
   Column,
   CreateDateColumn,
@@ -30,7 +30,7 @@ export class Product {
   })
   count: number;
 
-  @ManyToMany((type) => Tag)
+  @ManyToMany((type) => Tags)
   @JoinTable({
     name: 'products_tags',
     joinColumn: {
@@ -40,7 +40,7 @@ export class Product {
       name: 'tagId',
     },
   })
-  tags: Tag[];
+  tags: Tags[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

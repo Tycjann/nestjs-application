@@ -24,35 +24,38 @@ export class UsersController {
   userEmailValidator = new UserValidatorService(this.userRepository);
 
   @Get(':id')
-  getUserById(
+  async getUserById(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): ExternalUserDTO {
-    return this.mapUserToExternal(this.userRepository.getUserById(id));
+  ): Promise<ExternalUserDTO> {
+    return this.mapUserToExternal(await this.userRepository.getUserById(id));
   }
 
   @Get()
-  getAllUsers(): ExternalUserDTO[] {
-    return this.userRepository.getAllUsers().map(this.mapUserToExternal);
+  async getAllUsers(): Promise<ExternalUserDTO[]> {
+    const allUser = await this.userRepository.getAllUsers();
+    return allUser.map((user) => this.mapUserToExternal(user));
   }
 
   @Post()
-  addUser(@Body() item: CreateUserDTO): ExternalUserDTO {
+  async addUser(@Body() item: CreateUserDTO): Promise<ExternalUserDTO> {
     this.userEmailValidator.validateUniqueEmail(item.email);
-
-    return this.mapUserToExternal(this.userRepository.addUser(item));
+    return this.mapUserToExternal(await this.userRepository.addUser(item));
   }
 
   @Put(':id')
-  updateUser(
+  async updateUser(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() item: UpdateUserDTO,
-  ): ExternalUserDTO {
-    return this.mapUserToExternal(this.userRepository.updateUser(id, item));
+  ): Promise<ExternalUserDTO> {
+    return this.mapUserToExternal(
+      await this.userRepository.updateUser(id, item),
+    );
   }
 
   mapUserToExternal(user: User): ExternalUserDTO {
     return {
       ...user,
+      // ? Czy ja muszę konwertować daty?
       dateBirth: dateToArray(user.dateBirth),
       createdAt: dateToArray(user.createdAt),
       updatedAt: dateToArray(user.updatedAt),
@@ -61,9 +64,9 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(204)
-  deleteUser(
+  async deleteUser(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): void {
-    return this.userRepository.deleteUser(id);
+  ): Promise<void> {
+    return await this.userRepository.deleteUser(id);
   }
 }

@@ -15,11 +15,11 @@ export class ProductsDataService {
 
   private products: Product[] = [];
 
-  getProductById(id: string): Promise<Product> {
+  async getProductById(id: string): Promise<Product> {
     return this.productRepository.findOneBy({ id });
   }
 
-  getAllProducts(): Promise<Product[]> {
+  async getAllProducts(): Promise<Product[]> {
     return this.productRepository.find();
   }
 

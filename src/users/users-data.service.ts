@@ -1,53 +1,85 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './interfaces/user.interface';
+import { User } from './db/users.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { UserRepository } from './db/users.repository';
+import { UserAddressRepository } from './db/user-address.repository';
+import { CreateUserAddressDTO } from './dto/create-user-address';
+import { UserAddress } from './db/user-address.entity';
+import { UpdateUserAddressDTO } from './dto/update-user-address';
 
 @Injectable()
 export class UsersDataService {
+  constructor(
+    private userRepository: UserRepository,
+    private userAddressRepository: UserAddressRepository,
+  ) {}
+
   private users: User[] = [];
 
-  getUserById(id: string): User {
-    return this.users.find((user) => user.id === id);
+  async getUserById(id: string): Promise<User> {
+    return this.userRepository.findOneBy({ id: id });
   }
 
-  getUserByEmail(email: string): User {
-    return this.users.find((user) => user.email === email);
+  async getUserByEmail(email: string): Promise<User> {
+    return this.userRepository.findOneBy({ email: email });
   }
 
-  getAllUsers(): User[] {
-    return this.users;
-  }
-  addUser(item: CreateUserDTO): User {
-    const user: User = {
-      ...item,
-      id: uuidv4(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.users.push(user);
-    return user;
+  getAllUsers(): Promise<User[]> {
+    return this.userRepository.find();
   }
 
-  deleteUser(id: string): void {
-    this.users = this.users.filter((user) => user.id !== id);
+  async prepareUserAddressesToSave(
+    address: CreateUserAddressDTO[] | UpdateUserAddressDTO[],
+  ): Promise<UserAddress[]> {
+    const addresses: UserAddress[] = [];
+    for (const add of address) {
+      const addressToSave = new UserAddress();
+
+      addressToSave.country = add.country;
+      addressToSave.city = add.city;
+      addressToSave.street = add.street;
+      addressToSave.houseNumber = add.houseNumber;
+      addressToSave.apartmentNumber = add.apartmentNumber;
+
+      addresses.push(await this.userAddressRepository.save(addressToSave));
+    }
+
+    return addresses;
   }
 
-  updateUser(id: string, item: UpdateUserDTO): User {
-    this.users = this.users.map((user) => {
-      if (user.id === id) {
-        return {
-          ...item,
-          id: user.id,
-          createdAt: user.createdAt,
-          dateBirth: user.dateBirth,
-          updatedAt: new Date(),
-        };
-      }
-      return user;
-    });
+  async addUser(item: CreateUserDTO): Promise<User> {
+    const userToSave = new User();
+
+    userToSave.nameFirst = item.nameFirst;
+    userToSave.nameLast = item.nameLast;
+    userToSave.email = item.email;
+    userToSave.address = await this.prepareUserAddressesToSave(item.address);
+    userToSave.role = item.role;
+    userToSave.dateBirth = item.dateBirth;
+
+    return this.userRepository.save(userToSave);
+  }
+
+  async updateUser(id: string, item: UpdateUserDTO): Promise<User> {
+    // ? dobrze?
+    this.userAddressRepository.deleteUserAddressesByUserId(id);
+
+    const userToUpdate = await this.getUserById(id);
+
+    userToUpdate.nameFirst = item.nameFirst;
+    userToUpdate.nameLast = item.nameLast;
+    userToUpdate.email = item.email;
+    userToUpdate.address = await this.prepareUserAddressesToSave(item.address);
+    userToUpdate.role = item.role;
+    userToUpdate.dateBirth = item.dateBirth;
+
+    await this.userRepository.save(userToUpdate);
 
     return this.getUserById(id);
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    this.userRepository.delete(id);
   }
 }
