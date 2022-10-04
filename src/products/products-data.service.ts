@@ -1,53 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from './interfaces/product.interface';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { UpdateProductDTO } from './dto/update-product.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { TagRepository } from './db/tags.repository';
+import { ProductRepository } from './db/products.repository';
+import { Tags } from './db/tags.entity';
+import { Product } from './db/products.entity';
 
 @Injectable()
 export class ProductsDataService {
+  constructor(
+    private productRepository: ProductRepository,
+    private tagRepository: TagRepository,
+  ) {}
+
   private products: Product[] = [];
 
-  getProductById(id: string): Product {
-    return this.products.find((product) => product.id === id);
+  getProductById(id: string): Promise<Product> {
+    return this.productRepository.findOneBy({ id });
   }
 
-  getAllProducts(): Product[] {
-    return this.products;
+  getAllProducts(): Promise<Product[]> {
+    return this.productRepository.find();
   }
 
-  addProduct(item: CreateProductDTO): Product {
-    // item.id = uuidv4();
-    // item.createdAt = new Date();
-    // item.updatedAt = new Date();
-    // item.products.push(item);
-    // return item;
-    const product: Product = {
-      ...item,
-      id: uuidv4(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.products.push(product);
-    return product;
+  async addProduct(item: CreateProductDTO): Promise<Product> {
+    const tags: Tags[] = await this.tagRepository.findTagsByName(item.tags);
+    const productToSave = new Product();
+    productToSave.name = item.name;
+    productToSave.price = item.price;
+    productToSave.count = item.count;
+    productToSave.tags = tags;
+    return this.productRepository.save(productToSave);
   }
 
-  deleteProduct(id: string): void {
-    this.products = this.products.filter((product) => product.id !== id);
+  async deleteProduct(id: string): Promise<void> {
+    this.productRepository.delete(id);
   }
 
-  updateProduct(id: string, item: UpdateProductDTO): Product {
-    this.products = this.products.map((product) => {
-      if (product.id === id) {
-        return {
-          ...item,
-          id: product.id,
-          createdAt: product.createdAt,
-          updatedAt: new Date(),
-        };
-      }
-      return product;
-    });
+  async updateProduct(id: string, item: UpdateProductDTO): Promise<Product> {
+    const tags: Tags[] = await this.tagRepository.findTagsByName(item.tags);
+    const productToUpdate = await this.getProductById(id);
+
+    productToUpdate.name = item.name;
+    productToUpdate.price = item.price;
+    productToUpdate.count = item.count;
+    productToUpdate.tags = tags;
+
+    await this.productRepository.save(productToUpdate);
 
     return this.getProductById(id);
   }
