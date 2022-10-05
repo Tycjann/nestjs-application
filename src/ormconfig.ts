@@ -12,8 +12,8 @@ export const AppDataSource = new DataSource({
   logging: true,
   // synchronize - zapewnia nam aktualizację naszej tabeli podczas zmian w schemacie
   // W przypadku uruchamiania aplikacji na produkcji ta opcja powinna być ustawiona na false
-  // synchronize: true,
-  synchronize: false,
+  synchronize: true,
+  // synchronize: false,
   // dropSchema: false,
   // migrationsRun: true,
   migrationsRun: false,

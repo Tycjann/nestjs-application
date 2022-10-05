@@ -42,6 +42,12 @@ export class Product {
   })
   tags: Tags[];
 
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  description: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
