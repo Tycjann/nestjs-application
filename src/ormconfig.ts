@@ -6,7 +6,14 @@ export = {
   password: 'L7BABOCEBI',
   database: 'kodilla-nest-js-api',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  // Zapewnia nam aktualizację naszej tabeli podczas zmian w schemacie
+  // synchronize - zapewnia nam aktualizację naszej tabeli podczas zmian w schemacie
   // W przypadku uruchamiania aplikacji na produkcji ta opcja powinna być ustawiona na false
-  synchronize: true,
+  // synchronize: true,
+  synchronize: false,
+  dropSchema: false,
+  migrationsRun: true,
+  migrations: [__dirname + '/db/migrations/**/*{.ts,.js}'],
+  cli: {
+    migrationsDir: 'src/db/migrations',
+  },
 };
