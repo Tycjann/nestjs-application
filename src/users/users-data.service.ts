@@ -7,26 +7,28 @@ import { UserAddressRepository } from './db/user-address.repository';
 import { CreateUserAddressDTO } from './dto/create-user-address';
 import { UserAddress } from './db/user-address.entity';
 import { UpdateUserAddressDTO } from './dto/update-user-address';
+import { Connection, EntityManager } from 'typeorm';
 
 @Injectable()
 export class UsersDataService {
   constructor(
-    private userRepository: UserRepository,
-    private userAddressRepository: UserAddressRepository,
+    private repository: UserRepository,
+    private repositoryUserAddress: UserAddressRepository,
+    private connection: Connection,
   ) {}
 
   private users: User[] = [];
 
   async getUserById(id: string): Promise<User> {
-    return this.userRepository.findOneBy({ id: id });
+    return this.repository.findOneBy({ id: id });
   }
 
   async getUserByEmail(email: string): Promise<User> {
-    return this.userRepository.findOneBy({ email: email });
+    return this.repository.findOneBy({ email: email });
   }
 
   getAllUsers(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.repository.find();
   }
 
   async prepareUserAddressesToSave(
@@ -42,28 +44,36 @@ export class UsersDataService {
       addressToSave.houseNumber = add.houseNumber;
       addressToSave.apartmentNumber = add.apartmentNumber;
 
-      addresses.push(await this.userAddressRepository.save(addressToSave));
+      addresses.push(await this.repositoryUserAddress.save(addressToSave));
     }
 
     return addresses;
   }
 
   async addUser(item: CreateUserDTO): Promise<User> {
-    const userToSave = new User();
+    return this.connection.transaction(async (manager: EntityManager) => {
+      const userToSave = new User();
 
-    userToSave.nameFirst = item.nameFirst;
-    userToSave.nameLast = item.nameLast;
-    userToSave.email = item.email;
-    userToSave.address = await this.prepareUserAddressesToSave(item.address);
-    userToSave.role = item.role;
-    userToSave.dateBirth = item.dateBirth;
+      userToSave.nameFirst = item.nameFirst;
+      userToSave.nameLast = item.nameLast;
+      userToSave.email = item.email;
+      userToSave.role = item.role;
+      userToSave.dateBirth = item.dateBirth;
 
-    return this.userRepository.save(userToSave);
+      // userToSave.address = await this.prepareUserAddressesToSave(
+      //   item.address,
+      //   manager.getCustomRepository(UserAddressRepository),
+      // );
+
+      userToSave.address = await this.prepareUserAddressesToSave(item.address);
+
+      return await manager.getCustomRepository(UserRepository).save(userToSave);
+    });
   }
 
   async updateUser(id: string, item: UpdateUserDTO): Promise<User> {
     // ? dobrze?
-    this.userAddressRepository.deleteUserAddressesByUserId(id);
+    this.repositoryUserAddress.deleteUserAddressesByUserId(id);
 
     const userToUpdate = await this.getUserById(id);
 
@@ -74,12 +84,12 @@ export class UsersDataService {
     userToUpdate.role = item.role;
     userToUpdate.dateBirth = item.dateBirth;
 
-    await this.userRepository.save(userToUpdate);
+    await this.repository.save(userToUpdate);
 
     return this.getUserById(id);
   }
 
   async deleteUser(id: string): Promise<void> {
-    this.userRepository.delete(id);
+    this.repository.delete(id);
   }
 }
