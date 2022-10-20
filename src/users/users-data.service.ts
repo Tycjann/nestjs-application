@@ -33,21 +33,22 @@ export class UsersDataService {
 
   async prepareUserAddressesToSave(
     address: CreateUserAddressDTO[] | UpdateUserAddressDTO[],
+    userAddressRepository: UserAddressRepository,
   ): Promise<UserAddress[]> {
-    const addresses: UserAddress[] = [];
+    const addressToSave: UserAddress[] = [];
     for (const add of address) {
-      const addressToSave = new UserAddress();
+      const userAddress = new UserAddress();
 
-      addressToSave.country = add.country;
-      addressToSave.city = add.city;
-      addressToSave.street = add.street;
-      addressToSave.houseNumber = add.houseNumber;
-      addressToSave.apartmentNumber = add.apartmentNumber;
+      userAddress.country = add.country;
+      userAddress.city = add.city;
+      userAddress.street = add.street;
+      userAddress.houseNumber = add.houseNumber;
+      userAddress.apartmentNumber = add.apartmentNumber;
 
-      addresses.push(await this.repositoryUserAddress.save(addressToSave));
+      addressToSave.push(await userAddressRepository.save(userAddress));
     }
 
-    return addresses;
+    return addressToSave;
   }
 
   async addUser(item: CreateUserDTO): Promise<User> {
@@ -60,33 +61,35 @@ export class UsersDataService {
       userToSave.role = item.role;
       userToSave.dateBirth = item.dateBirth;
 
-      // userToSave.address = await this.prepareUserAddressesToSave(
-      //   item.address,
-      //   manager.getCustomRepository(UserAddressRepository),
-      // );
-
-      userToSave.address = await this.prepareUserAddressesToSave(item.address);
-
+      userToSave.address = await this.prepareUserAddressesToSave(
+        item.address,
+        manager.getCustomRepository(UserAddressRepository),
+      );
+      // userToSave.address = await this.prepareUserAddressesToSave(item.address);
       return await manager.getCustomRepository(UserRepository).save(userToSave);
     });
   }
 
   async updateUser(id: string, item: UpdateUserDTO): Promise<User> {
-    // ? dobrze?
-    this.repositoryUserAddress.deleteUserAddressesByUserId(id);
+    return this.connection.transaction(async (manager: EntityManager) => {
+      // ? dobrze?
+      this.repositoryUserAddress.deleteUserAddressesByUserId(id);
+      const userToUpdate = await this.getUserById(id);
 
-    const userToUpdate = await this.getUserById(id);
+      userToUpdate.nameFirst = item.nameFirst;
+      userToUpdate.nameLast = item.nameLast;
+      userToUpdate.email = item.email;
+      userToUpdate.address = await this.prepareUserAddressesToSave(
+        item.address,
+        manager.getCustomRepository(UserAddressRepository),
+      );
+      userToUpdate.role = item.role;
+      userToUpdate.dateBirth = item.dateBirth;
 
-    userToUpdate.nameFirst = item.nameFirst;
-    userToUpdate.nameLast = item.nameLast;
-    userToUpdate.email = item.email;
-    userToUpdate.address = await this.prepareUserAddressesToSave(item.address);
-    userToUpdate.role = item.role;
-    userToUpdate.dateBirth = item.dateBirth;
+      await this.repository.save(userToUpdate);
 
-    await this.repository.save(userToUpdate);
-
-    return this.getUserById(id);
+      return this.getUserById(id);
+    });
   }
 
   async deleteUser(id: string): Promise<void> {
