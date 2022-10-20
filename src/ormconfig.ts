@@ -14,6 +14,9 @@ export const AppDataSource = new DataSource({
   // W przypadku uruchamiania aplikacji na produkcji ta opcja powinna być ustawiona na false
   // ? przy true migracje nie zapisują się w tabeli history
   //  ? + pytanie o tablice migration - dlaczego jest pysta
+  // ! For fake data:
+  // ! Dobrze też opcję dropSchema oraz synchronize ustawić na true, aby za każdym razem nasza
+  // ! baza była generowana od nowa, a migracja uruchamiana ponownie.
   synchronize: true,
   // synchronize: false,
   // dropSchema: false,
