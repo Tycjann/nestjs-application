@@ -63,7 +63,6 @@ export class ProductsController {
   mapProductToExternal(product: Product): ExternalProductDTO {
     return {
       ...product,
-      // ? Czy ja muszę konwertować daty?
       createdAt: dateToArray(product.createdAt),
       updatedAt: dateToArray(product.updatedAt),
       tags: product.tags?.map((i) => i.name),

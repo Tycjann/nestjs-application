@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TagRepository } from './products/db/tags.repository';
 import { AppDataSource } from './ormconfig';
+import { OrdersModule } from './orders/orders.module';
 
 import * as cors from 'cors';
 
@@ -20,6 +21,7 @@ import * as cors from 'cors';
     UsersModule,
     TypeOrmModule.forRoot(AppDataSource.options),
     TypeOrmModule.forFeature([TagRepository]),
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
